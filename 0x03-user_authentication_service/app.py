@@ -50,33 +50,29 @@ def login() -> str:
         abort(401)
 
 
-@app.route('/sessions', methods=['DELETE'], strict_slashes=False)
-def logout() -> str:
-    """ DELETE /sessions
-      Return:
-        - message
+@app.route("/sessions", methods=["DELETE"], strict_slashes=False)
+def logout():
     """
-    session_id = request.cookies.get('session_id')
-    user = AUTH.get_user_from_session_id(session_id)
-    if user:
-        AUTH.destroy_session(user.id)
-        return redirect('/')
-    else:
+    Log out a user based on the ses_id in the received cookies
+    """
+    ses_id = request.cookies.get("session_id", None)
+    user = AUTH.get_user_from_session_id(ses_id)
+    if user is None or ses_id is None:
         abort(403)
+    AUTH.destroy_session(user.id)
+    return redirect("/")
 
 
-@app.route('/profile', methods=['GET'], strict_slashes=False)
+@app.route("/profile", methods=["GET"], strict_slashes=False)
 def profile() -> str:
-    """ GET /profile
-      Return:
-        - message
     """
-    session_id = request.cookies.get('session_id')
-    user = AUTH.get_user_from_session_id(session_id)
+    returns the user's email based ses_id in the received cookies
+    """
+    ses_id = request.cookies.get("session_id")
+    user = AUTH.get_user_from_session_id(ses_id)
     if user:
-        return jsonify({"email": user.email}), 200
-    else:
-        abort(403)
+        return jsonify({"email": f"{user.email}"}), 200
+    abort(403)
 
 
 @app.route('/reset_password', methods=['POST'], strict_slashes=False)
